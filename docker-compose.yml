@@ -1,6 +1,10 @@
 services:
   openclaw-gateway:
     image: ${OPENCLAW_IMAGE:-openclaw:local}
+    build:
+      context: .
+      args:
+        - OPENCLAW_DOCKER_APT_PACKAGES=${OPENCLAW_DOCKER_APT_PACKAGES:-}
     environment:
       HOME: /home/node
       TERM: xterm-256color
@@ -31,6 +35,10 @@ services:
   openclaw-cli:
     image: ${OPENCLAW_IMAGE:-openclaw:local}
     profiles: ["cli"]
+    build:
+      context: .
+      args:
+        - OPENCLAW_DOCKER_APT_PACKAGES=${OPENCLAW_DOCKER_APT_PACKAGES:-}
     environment:
       HOME: /home/node
       TERM: xterm-256color

@@ -25,10 +25,12 @@ services:
         "${OPENCLAW_GATEWAY_BIND:-lan}",
         "--port",
         "${OPENCLAW_GATEWAY_PORT:-18789}",
+        "--allow-unconfigured"
       ]
 
   openclaw-cli:
     image: ${OPENCLAW_IMAGE:-openclaw:local}
+    profiles: ["cli"]
     environment:
       HOME: /home/node
       TERM: xterm-256color

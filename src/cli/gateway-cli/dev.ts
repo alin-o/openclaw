@@ -6,6 +6,7 @@ import { resolveDefaultAgentWorkspaceDir } from "../../agents/workspace.js";
 import { handleReset } from "../../commands/onboard-helpers.js";
 import { createConfigIO, writeConfigFile } from "../../config/config.js";
 import { defaultRuntime } from "../../runtime.js";
+import { resolveOpenClawPackageRoot } from "../../infra/openclaw-root.js";
 import { resolveUserPath, shortenHomePath } from "../../utils.js";
 
 const DEV_IDENTITY_NAME = "C3-PO";
@@ -13,10 +14,21 @@ const DEV_IDENTITY_THEME = "protocol droid";
 const DEV_IDENTITY_EMOJI = "🤖";
 const DEV_AGENT_WORKSPACE_SUFFIX = "dev";
 
+async function getDevTemplateDir(): Promise<string> {
+  const packageRoot = await resolveOpenClawPackageRoot({ moduleUrl: import.meta.url });
+  if (packageRoot) {
+    return path.join(packageRoot, "docs/reference/templates");
+  }
+  return path.resolve(
+    path.dirname(new URL(import.meta.url).pathname),
+    "../../../docs/reference/templates",
+  );
+}
+
 async function loadDevTemplate(name: string, fallback: string): Promise<string> {
   try {
-    const templateDir = await resolveWorkspaceTemplateDir();
-    const raw = await fs.promises.readFile(path.join(templateDir, name), "utf-8");
+    const devTemplateDir = await getDevTemplateDir();
+    const raw = await fs.promises.readFile(path.join(devTemplateDir, name), "utf-8");
     if (!raw.startsWith("---")) {
       return raw;
     }

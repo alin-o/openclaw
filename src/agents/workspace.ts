@@ -1,7 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { runCommandWithTimeout } from "../process/exec.js";
+import { fileURLToPath } from "node:url";
+
+import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
 import { isSubagentSessionKey } from "../routing/session-key.js";
 import { resolveUserPath } from "../utils.js";
 import { resolveWorkspaceTemplateDir } from "./workspace-templates.js";
@@ -28,6 +30,15 @@ export const DEFAULT_BOOTSTRAP_FILENAME = "BOOTSTRAP.md";
 export const DEFAULT_MEMORY_FILENAME = "MEMORY.md";
 export const DEFAULT_MEMORY_ALT_FILENAME = "memory.md";
 
+
+async function getTemplateDir(): Promise<string> {
+  const packageRoot = await resolveOpenClawPackageRoot({ moduleUrl: import.meta.url });
+  if (packageRoot) {
+    return path.join(packageRoot, "docs/reference/templates");
+  }
+  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../docs/reference/templates");
+}
+
 function stripFrontMatter(content: string): string {
   if (!content.startsWith("---")) {
     return content;
@@ -43,7 +54,7 @@ function stripFrontMatter(content: string): string {
 }
 
 async function loadTemplate(name: string): Promise<string> {
-  const templateDir = await resolveWorkspaceTemplateDir();
+  const templateDir = await getTemplateDir();
   const templatePath = path.join(templateDir, name);
   try {
     const content = await fs.readFile(templatePath, "utf-8");
@@ -224,7 +235,7 @@ async function resolveMemoryBootstrapEntries(
     let key = entry.filePath;
     try {
       key = await fs.realpath(entry.filePath);
-    } catch {}
+    } catch { }
     if (seen.has(key)) {
       continue;
     }
@@ -241,35 +252,35 @@ export async function loadWorkspaceBootstrapFiles(dir: string): Promise<Workspac
     name: WorkspaceBootstrapFileName;
     filePath: string;
   }> = [
-    {
-      name: DEFAULT_AGENTS_FILENAME,
-      filePath: path.join(resolvedDir, DEFAULT_AGENTS_FILENAME),
-    },
-    {
-      name: DEFAULT_SOUL_FILENAME,
-      filePath: path.join(resolvedDir, DEFAULT_SOUL_FILENAME),
-    },
-    {
-      name: DEFAULT_TOOLS_FILENAME,
-      filePath: path.join(resolvedDir, DEFAULT_TOOLS_FILENAME),
-    },
-    {
-      name: DEFAULT_IDENTITY_FILENAME,
-      filePath: path.join(resolvedDir, DEFAULT_IDENTITY_FILENAME),
-    },
-    {
-      name: DEFAULT_USER_FILENAME,
-      filePath: path.join(resolvedDir, DEFAULT_USER_FILENAME),
-    },
-    {
-      name: DEFAULT_HEARTBEAT_FILENAME,
-      filePath: path.join(resolvedDir, DEFAULT_HEARTBEAT_FILENAME),
-    },
-    {
-      name: DEFAULT_BOOTSTRAP_FILENAME,
-      filePath: path.join(resolvedDir, DEFAULT_BOOTSTRAP_FILENAME),
-    },
-  ];
+      {
+        name: DEFAULT_AGENTS_FILENAME,
+        filePath: path.join(resolvedDir, DEFAULT_AGENTS_FILENAME),
+      },
+      {
+        name: DEFAULT_SOUL_FILENAME,
+        filePath: path.join(resolvedDir, DEFAULT_SOUL_FILENAME),
+      },
+      {
+        name: DEFAULT_TOOLS_FILENAME,
+        filePath: path.join(resolvedDir, DEFAULT_TOOLS_FILENAME),
+      },
+      {
+        name: DEFAULT_IDENTITY_FILENAME,
+        filePath: path.join(resolvedDir, DEFAULT_IDENTITY_FILENAME),
+      },
+      {
+        name: DEFAULT_USER_FILENAME,
+        filePath: path.join(resolvedDir, DEFAULT_USER_FILENAME),
+      },
+      {
+        name: DEFAULT_HEARTBEAT_FILENAME,
+        filePath: path.join(resolvedDir, DEFAULT_HEARTBEAT_FILENAME),
+      },
+      {
+        name: DEFAULT_BOOTSTRAP_FILENAME,
+        filePath: path.join(resolvedDir, DEFAULT_BOOTSTRAP_FILENAME),
+      },
+    ];
 
   entries.push(...(await resolveMemoryBootstrapEntries(resolvedDir)));
 

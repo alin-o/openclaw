@@ -18,10 +18,15 @@ RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY ui/package.json ./ui/package.json
+COPY openclaw.mjs ./
 COPY patches ./patches
 COPY scripts ./scripts
 
 RUN pnpm install --frozen-lockfile
+
+# Create a robust wrapper for the CLI
+RUN echo '#!/bin/bash\nnode /app/openclaw.mjs "$@"' > /usr/local/bin/openclaw \
+    && chmod +x /usr/local/bin/openclaw
 
 COPY . .
 RUN OPENCLAW_A2UI_SKIP_MISSING=1 pnpm build

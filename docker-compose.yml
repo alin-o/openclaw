@@ -55,3 +55,34 @@ services:
     tty: true
     init: true
     entrypoint: ["node", "dist/index.js"]
+
+  openclaw-browser:
+    build:
+      context: .
+      dockerfile: Dockerfile.browser
+    environment:
+      - OPENCLAW_BROWSER_HEADLESS=${OPENCLAW_BROWSER_HEADLESS:-0}
+      - OPENCLAW_BROWSER_CDP_PORT=9222
+      - OPENCLAW_BROWSER_NOVNC_PORT=6080
+      - OPENCLAW_BROWSER_ENABLE_NOVNC=${OPENCLAW_BROWSER_ENABLE_NOVNC:-1}
+    ports:
+      - "6080:6080" # noVNC
+    deploy:
+      resources:
+        limits:
+          cpus: "${OPENCLAW_BROWSER_CPU_LIMIT:-2.0}"
+          memory: "${OPENCLAW_BROWSER_MEMORY_LIMIT:-2G}"
+          pids: 300
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - SYS_ADMIN
+    shm_size: 256m
+    networks:
+      default:
+

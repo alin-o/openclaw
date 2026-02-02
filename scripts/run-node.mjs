@@ -109,7 +109,13 @@ const logRunner = (message) => {
 };
 
 const runNode = () => {
-  const nodeProcess = spawn(process.execPath, ["openclaw.mjs", ...args], {
+  const nodeArgs = ["openclaw.mjs", ...args];
+  if (env.OPENCLAW_DEBUG_CHILD === "true" || env.OPENCLAW_DEBUG_CHILD === "1") {
+    nodeArgs.unshift("--inspect=0.0.0.0:9229");
+    env.OPENCLAW_NODE_OPTIONS_READY = "1";
+  }
+
+  const nodeProcess = spawn(process.execPath, nodeArgs, {
     cwd,
     env,
     stdio: "inherit",

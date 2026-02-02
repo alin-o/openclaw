@@ -85,4 +85,6 @@ services:
     shm_size: 256m
     networks:
       default:
+       aliases:
+          - browser
 

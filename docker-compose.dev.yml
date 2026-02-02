@@ -13,9 +13,11 @@ services:
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
       OPENCLAW_PROFILE: dev
+      OPENCLAW_STATE_DIR: /home/node/.openclaw-dev
       OPENCLAW_DEBUG_CHILD: "true"
     volumes:
       - .:/app
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw-dev
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
     extra_hosts:
@@ -53,8 +55,11 @@ services:
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
+      OPENCLAW_PROFILE: dev
+      OPENCLAW_STATE_DIR: /home/node/.openclaw-dev
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw-dev
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
     stdin_open: true
     tty: true
@@ -90,4 +95,5 @@ services:
     shm_size: 256m
     networks:
       default:
-
+        aliases:
+          - browser

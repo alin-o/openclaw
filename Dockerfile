@@ -14,7 +14,11 @@ RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
       DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $OPENCLAW_DOCKER_APT_PACKAGES && \
       apt-get clean && \
       rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
+      rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
     fi
+
+# Use bash as the default shell
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY ui/package.json ./ui/package.json
@@ -23,6 +27,8 @@ COPY patches ./patches
 COPY scripts ./scripts
 
 RUN pnpm install --frozen-lockfile
+
+ENV PATH="/app/node_modules/.bin:${PATH}"
 
 # Create a robust wrapper for the CLI
 RUN echo '#!/bin/bash\nnode /app/openclaw.mjs "$@"' > /usr/local/bin/openclaw \

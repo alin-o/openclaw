@@ -87,4 +87,9 @@ services:
       default:
        aliases:
           - browser
+      hostaccess: {}
 
+networks:
+  hostaccess:
+    external: true
+    name: openclaw_hostaccess
